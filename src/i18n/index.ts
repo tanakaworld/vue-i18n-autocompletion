@@ -17,7 +17,7 @@ const messages = {
   },
   ja: {
     message: {
-      hello: "こんにちは，世界"
+      hello: "こんにちは，世界!"
     },
     home: {
       title: "ホーム"
@@ -29,9 +29,28 @@ const messages = {
 };
 const locale = "ja";
 
+export function generatePathMap(obj: Object, basePath: string = "") {
+  return Object.keys(obj).reduce((result, key) => {
+    const path = basePath === "" ? key : `${basePath}.${key}`;
+    if (typeof obj[key] === "object") {
+      result[key] = generatePathMap(obj[key], path);
+    } else {
+      result[key] = path;
+    }
+    return result;
+  }, {});
+}
+
+const i18nHints: any = generatePathMap(messages[locale]);
+
 const i18n = new VueI18n({
   locale,
   messages
 });
+Vue.mixin({
+  computed: {
+    $i18nHints: () => i18nHints
+  }
+});
 
-export { i18n };
+export { i18n, i18nHints };
